@@ -1,5 +1,5 @@
 const User = require("./userModel");
-
+const bcrypt = require("bcrypt");
 
 const createUser = async (user) => {
   try {
@@ -12,18 +12,6 @@ const createUser = async (user) => {
   }
 };
 
-const login = async(email,password) => {
-  const user = await User.findOne({email});
-  if(!user) throw new Error("User not found");
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if(!isMatch) throw new Error("invalid password");
-
-  const token = jwt.sign({_id: user._id, lastname: user.lastname, role: user.role}, process.env.JWT_SECRET, {expiresIn: '1h'});
-  return token;
-}
-
 module.exports = {
   createUser,
-  login,
 };
