@@ -8,9 +8,11 @@ const PORT = process.env.PORT || 5000;
 
 //routes
 const userRoutes = require("./users/userRoutes");
+const serviceRoutes = require("./service/serviceRouter");
 
 //middleware
 app.use(cors()).use(express.json()).use("/users", userRoutes);
+app.use("/services",serviceRoutes);
 
 //connection to database
 mongoose;
