@@ -9,13 +9,15 @@ const PORT = process.env.PORT || 5000;
 //routes
 const userRoutes = require("./users/userRoutes");
 const vehicleBrandRoutes = require("./vehiculeBrands/brandRoutes");
+const serviceRoutes = require("./service/serviceRouter");
 
 //middleware
 app
   .use(cors())
   .use(express.json())
   .use("/users", userRoutes)
-  .use("/brands", vehicleBrandRoutes);
+  .use("/brands", vehicleBrandRoutes)
+  .user("/services",serviceRoutes);
 
 //connection to database
 mongoose;
