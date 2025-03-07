@@ -16,7 +16,8 @@ app
   .use(cors())
   .use(express.json())
   .use("/users", userRoutes)
-  .use("/brands", vehicleBrandRoutes);
+  .use("/brands", vehicleBrandRoutes)
+  .user("/services",serviceRoutes);
 
 //connection to database
 mongoose;
