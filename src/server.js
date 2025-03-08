@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 5000;
 //routes
 const userRoutes = require("./users/userRoutes");
 const vehicleBrandRoutes = require("./vehiculeBrands/brandRoutes");
+const vehicleModelRoutes = require("./vehicleModels/modelRoutes");
 const serviceRoutes = require("./service/serviceRouter");
 
 //middleware
@@ -17,6 +18,7 @@ app
   .use(express.json())
   .use("/users", userRoutes)
   .use("/brands", vehicleBrandRoutes)
+  .use("/models", vehicleModelRoutes)
   .use("/services", serviceRoutes);
 
 //connection to database
