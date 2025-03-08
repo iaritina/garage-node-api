@@ -17,7 +17,7 @@ app
   .use(express.json())
   .use("/users", userRoutes)
   .use("/brands", vehicleBrandRoutes)
-  .user("/services",serviceRoutes);
+  .use("/services", serviceRoutes);
 
 //connection to database
 mongoose;
