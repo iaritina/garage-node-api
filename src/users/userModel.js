@@ -33,6 +33,8 @@ const userSchema = new Schema({
     enum: ["manager", "mecanicien", "client"],
     default: "client",
   },
+
+  isDeleted: {type: Boolean, default: false},
 });
 
 const User = mongoose.model("User", userSchema);

@@ -3,6 +3,28 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
+
+const getAllUser = async () => {
+  try 
+  {
+    return await User.find();
+  } 
+  catch (error) {
+    throw new Error("Error: " ,error.message);
+  }
+}
+
+
+const getUserById = async (id) => {
+  try 
+  {
+    return await User.findById(id);
+  } 
+  catch (error) {
+    throw new Error("Error: ",error.message);
+  }
+}
+
 const createUser = async (user) => {
   try {
     // le salt est un nombre aléatoire généré pour chaque mot de passe
@@ -13,6 +35,41 @@ const createUser = async (user) => {
     throw new Error("Error: " + error.message);
   }
 };
+
+const registrationMechanic = async(user) => {
+  try 
+  {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+    user.role = 'mecanicien';
+    return await User.create(user);
+  } 
+  catch (error) {
+    throw new Error("Error: ",error.message);  
+  }
+}
+
+const deleteUser = async (id) => {
+  try 
+  {
+     return await User.findByIdAndUpdate(id,
+      { $set: { isDeleted: true } },
+      { new: true } 
+     );
+  } catch (error) {
+    throw new Error("Error: ", error.message);
+  }
+}
+
+const updateUser = async (id, user) => {
+  try 
+  {
+    return await User.findByIdAndUpdate(id, user, {new: true});
+  } 
+  catch (error) {
+    throw new Error("Error",error.message);
+  }
+}
 
 
 const login = async (email, password) => {
@@ -27,6 +84,11 @@ const login = async (email, password) => {
 };
 
 module.exports = {
+  getAllUser,
+  getUserById,
   createUser,
+  registrationMechanic,
+  deleteUser,
+  updateUser,
   login,
 };
