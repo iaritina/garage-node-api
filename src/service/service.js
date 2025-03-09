@@ -14,29 +14,57 @@ const createService = async (service) => {
 
 
 const getAll = async () => {
-    const services = await Service.find({});
-    return services;
+    try 
+    {
+        return await Service.find({});
+    } 
+    catch (error) 
+    {
+        throw new Error("Error: ",error.message);
+    }
+    
 }
 
 const getById = async (id) => {
-    const service = await Service.findById(id);
-    return service;
+    try 
+    {
+        return await Service.findById(id);    
+    } 
+    catch (error) 
+    {
+        throw new Error("Error: ",error.message);
+    }
 }
 
 const update = async (id,data) => {
-    const service = await Service.findByIdAndUpdate(
-        id,
-        data,
-        {new: true, runValidators: true}
-    );
-    if(!service) return {message: "Service not found"};
-    return service;
+    try 
+    {
+        return await Service.findByIdAndUpdate(
+            id,
+            data,
+            {new: true, runValidators: true}
+        );
+    } 
+    catch (error) {
+        throw new Error("Error: ",error.message);    
+    }
+
 }
 
 const deleteService = async (id) => {
-    const service = await Service.findByIdAndDelete(id);
-    if(!service) return {message: "Service not found"};
-    return "Service supprimer";
+    try 
+    {
+        return await Service.findByIdAndUpdate(
+            id,
+            {$set: {isDeleted: true}},
+            {new: true}
+        );
+    } 
+    catch (error) 
+    {
+        throw new Error("Error: ",error.message);     
+    }
+   
 }
 
 

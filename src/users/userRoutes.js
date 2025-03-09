@@ -69,8 +69,6 @@ router.put("/delete/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try 
   {
-    console.log("id",req.params.id);
-    console.log("data",req.body);
     const  user = await userService.updateUser(req.params.id,req.body);
     res.status(200).json(user);
   } 
