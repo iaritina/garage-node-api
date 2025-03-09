@@ -50,7 +50,7 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-router.delete('/:id', async (req, res) => {
+router.put('/delete/:id', async (req, res) => {
     try 
     {
         const response = await service.deleteService(req.params.id);
@@ -58,7 +58,7 @@ router.delete('/:id', async (req, res) => {
     } 
     catch (error) 
     {
-        res.status(500).json({message: error.message});    
+        res.status(400).json({message: error.message});    
     }
 });
 
