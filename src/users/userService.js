@@ -74,7 +74,7 @@ const login = async (email, password) => {
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
-  return { token };
+  return { token, role: user.role };
 };
 
 module.exports = {
