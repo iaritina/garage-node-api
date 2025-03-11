@@ -16,7 +16,7 @@ const createService = async (service) => {
 const getAll = async () => {
     try 
     {
-        return await Service.find({});
+        return await Service.find({isDeleted: false});
     } 
     catch (error) 
     {
