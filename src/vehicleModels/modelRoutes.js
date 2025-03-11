@@ -49,4 +49,13 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.get("/brand/:brand_id", async (req, res) => {
+  try {
+    const models = await modelService.getModelsOfOneBrand(req.params.brand_id);
+    res.status(200).json(models);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 module.exports = router;
