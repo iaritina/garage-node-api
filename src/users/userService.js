@@ -74,9 +74,18 @@ const login = async (email, password) => {
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
-  return { token, role: user.role };
+  return { token, role: user.role, email: user.email };
 };
 
+const getUserByEmail = async (email) => {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) throw new Error("User not found");
+    return user;
+  } catch (error) {
+    throw new Error("Error", error.message);
+  }
+};
 module.exports = {
   getAllUser,
   getUserById,
@@ -85,4 +94,5 @@ module.exports = {
   deleteUser,
   updateUser,
   login,
+  getUserByEmail,
 };
