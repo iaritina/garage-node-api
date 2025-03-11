@@ -3,7 +3,14 @@ const vehicleModel = require("./vehicle-model");
 const getAllVehicle = async() => {
     try 
     {
-        return await vehicleModel.find({}).populate(["user","model"]);       
+        return await vehicleModel.find({})
+            .populate("user")
+            .populate({
+                path: "model",
+                populate: {
+                    path: "brand",
+                }
+            });     
     } 
     catch (error) 
     {
@@ -12,20 +19,31 @@ const getAllVehicle = async() => {
 }
 
 const getVehicleByUser = async (id) => {
-    try 
-    {
-        return await vehicleModel.find({user: id}).populate(["user","model"]);
-    } 
-    catch (error) 
-    {
-        throw new Error("Error: ",error.message);    
+    try {
+        return await vehicleModel.find({ user: id })
+            .populate("user") 
+            .populate({
+                path: "model",
+                populate: {
+                    path: "brand", 
+                }
+            });
+    } catch (error) {
+        throw new Error(`Error: ${error.message}`);    
     }
-}
+};
+
 
 const getVehicleById = async (id) => {
     try 
     {
-        return await vehicleModel.findById(id).populate(["user","model"]);
+        return await vehicleModel.findById(id).populate("user") 
+        .populate({
+            path: "model",
+            populate: {
+                path: "brand", 
+            }
+        });
     } 
     catch (error) 
     {
