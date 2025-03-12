@@ -1,5 +1,5 @@
+const { Schema } = require("mongoose");
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
   firstname: {
@@ -28,13 +28,17 @@ const userSchema = new Schema({
     type: [String],
     required: [true, "Phone number is required"],
   },
+  specialities: {
+    type: [Schema.Types.ObjectId],
+    ref: "Service",
+  },
   role: {
     type: String,
     enum: ["manager", "mecanicien", "client"],
     default: "client",
   },
 
-  isDeleted: {type: Boolean, default: false},
+  isDeleted: { type: Boolean, default: false },
 });
 
 const User = mongoose.model("User", userSchema);
