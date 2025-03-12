@@ -5,9 +5,12 @@ require("dotenv").config();
 
 const getAllUser = async () => {
   try {
-    return await User.find();
+    return await User.find().populate({
+      path: "specialities",
+      select: "_id name",
+    });
   } catch (error) {
-    throw new Error("Error: ", error.message);
+    throw new Error("Error: " + error.message);
   }
 };
 
@@ -86,6 +89,20 @@ const getUserByEmail = async (email) => {
     throw new Error("Error", error.message);
   }
 };
+
+/**
+ *
+ * @param {Array} value
+ */
+const getMechanicSpecialist = async (value) => {
+  try {
+    const mechanicsIds = null;
+    value.forEach((data) => {
+      console.log(data);
+    });
+  } catch (error) {}
+};
+
 module.exports = {
   getAllUser,
   getUserById,
@@ -95,4 +112,5 @@ module.exports = {
   updateUser,
   login,
   getUserByEmail,
+  getMechanicSpecialist,
 };
