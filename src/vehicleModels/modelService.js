@@ -40,10 +40,22 @@ const deleteModel = async (id) => {
   }
 };
 
+const getModelsOfOneBrand = async (brand_id) => {
+  try {
+    const models = await vehicleModel
+      .find({ brand: brand_id })
+      .populate("brand");
+    return models;
+  } catch (error) {
+    throw new Error("Error: " + error.message);
+  }
+};
+
 module.exports = {
   createModel,
   getModels,
   getModelById,
   updateModel,
   deleteModel,
+  getModelsOfOneBrand,
 };

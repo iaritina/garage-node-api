@@ -20,7 +20,7 @@ const getAllVehicle = async() => {
 
 const getVehicleByUser = async (id) => {
     try {
-        return await vehicleModel.find({ user: id })
+        return await vehicleModel.find({ user: id,isDeleted: false })
             .populate("user") 
             .populate({
                 path: "model",

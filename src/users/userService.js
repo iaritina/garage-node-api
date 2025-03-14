@@ -5,9 +5,12 @@ require("dotenv").config();
 
 const getAllUser = async () => {
   try {
-    return await User.find();
+    return await User.find().populate({
+      path: "specialities",
+      select: "_id name",
+    });
   } catch (error) {
-    throw new Error("Error: ", error.message);
+    throw new Error("Error: " + error.message);
   }
 };
 
@@ -74,7 +77,30 @@ const login = async (email, password) => {
     process.env.JWT_SECRET,
     { expiresIn: "1h" }
   );
-  return { token, role: user.role };
+  return { token, role: user.role, email: user.email };
+};
+
+const getUserByEmail = async (email) => {
+  try {
+    const user = await User.findOne({ email });
+    if (!user) throw new Error("User not found");
+    return user;
+  } catch (error) {
+    throw new Error("Error", error.message);
+  }
+};
+
+/**
+ *
+ * @param {Array} value
+ */
+const getMechanicSpecialist = async (value) => {
+  try {
+    const mechanicsIds = null;
+    value.forEach((data) => {
+      console.log(data);
+    });
+  } catch (error) {}
 };
 
 module.exports = {
@@ -85,4 +111,6 @@ module.exports = {
   deleteUser,
   updateUser,
   login,
+  getUserByEmail,
+  getMechanicSpecialist,
 };
