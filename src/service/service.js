@@ -17,11 +17,19 @@ const getAll = async () => {
   }
 };
 
+const getByIds = async (ids) => {
+  try {
+    return await Service.find({ _id: { $in: ids } });
+  } catch (error) {
+    throw new Error("Error: " + error.message);
+  }
+};
+
 const getById = async (id) => {
   try {
     return await Service.findById(id);
   } catch (error) {
-    throw new Error("Error: ", error.message);
+    throw new Error("Error: " + error.message);
   }
 };
 
@@ -52,6 +60,7 @@ module.exports = {
   createService,
   getAll,
   getById,
+  getByIds,
   update,
   deleteService,
 };
