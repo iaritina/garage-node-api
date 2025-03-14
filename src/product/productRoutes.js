@@ -1,5 +1,8 @@
 const router = require("express").Router();
 const productService = require("./productService");
+const mail = require("../mail/mailerRoutes");
+const userService = require("../users/userService");
+const sendEmail = require("../mail/mailer");
 
 router.get("/", async (req, res) => {
     try 
@@ -13,6 +16,16 @@ router.get("/", async (req, res) => {
 router.post("/", async (req,res) => {
     try {
         const product = await productService.createProduct(req.body);
+        const users = await userService.getAllUser();
+        const emails = users.map(user => user.email);
+
+        emails.forEach(email => {
+            sendEmail(email, "Nouveau Produit Disponible !", "newProduct", {
+                productName: product.name,
+                price: product.current_price.toLocaleString("fr-FR")
+            });
+        })
+
         res.status(201).json(product);
     } catch (error) {
         res.status(400).json({error: error.message});
