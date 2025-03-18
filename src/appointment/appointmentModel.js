@@ -1,30 +1,21 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const { Schema } = require("mongoose");
 
-const repairSchema = new Schema({
-  service: {
-    type: Schema.Types.ObjectId,
-    ref: "Service",
-    required: [true, "Service is required"],
-  },
-  mechanic: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: [true, "Mechanic is required"],
-  },
+const RepairsSchema = new Schema({
+  service: { type: Schema.Types.ObjectId, ref: "Service", required: true },
+  user: { type: Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 const appointmentSchema = new Schema({
   vehicle: {
     type: Schema.Types.ObjectId,
-    ref: "vehicle",
-    required: [true, "Mechanics are required"],
+    ref: "Vehicle",
+    required: [true, "Vehicle is required"],
   },
-  repairs: [repairSchema],
-  date: {
-    type: Date,
-    required: [true, "Date and time are required"],
-  },
+  repairs: { type: [RepairsSchema], required: [true, "Repairs are required"] },
+  date: { type: Date, required: [true, "Date is required"] },
 });
 
-module.exports = mongoose.model("Appointment", appointmentSchema);
+const Appointment = mongoose.model("Appointment", appointmentSchema);
+
+module.exports = Appointment;
