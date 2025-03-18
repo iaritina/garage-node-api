@@ -27,7 +27,7 @@ app
   .use("/vehicles", vehicleRoutes)
   .use("/products", productRoutes)
   .use("/mail", mailRoutes)
-  .use("/rdv/", appointmentRoutes);
+  .use("/appointments", appointmentRoutes);
 
 //connection to database
 mongoose;

@@ -1,12 +1,17 @@
 const router = require("express").Router();
 const appointmentService = require("./appointmentService");
 
-router.post("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const data = await appointmentService.saveAppointmentManually(req.body);
-    res.status(201).json(data);
+    const { serviceId, date, time } = req.query;
+    const mechanics = await appointmentService.getAvailableMechanics(
+      serviceId,
+      date,
+      time
+    );
+    res.json(mechanics);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
