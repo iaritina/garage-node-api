@@ -16,7 +16,6 @@ async function createAppointment(data) {
 async function getAvailableMechanics(serviceIds, date, time) {
   const finalMechanicsAvailable = new Set();
 
-  // Récupérer les services associés aux IDs donnés
   const services = await Service.find({ _id: { $in: serviceIds } });
 
   if (services.length !== serviceIds.length) {
@@ -25,10 +24,9 @@ async function getAvailableMechanics(serviceIds, date, time) {
     );
   }
 
-  // Convertir la date et l'heure en UTC proprement
   const [hours, minutes] = time.split(":").map(Number);
   const startTime = new Date(date);
-  startTime.setUTCHours(hours, minutes, 0, 0); // ⚠️ Met en UTC directement
+  startTime.setUTCHours(hours, minutes, 0, 0);
 
   console.log("Start Time (UTC):", startTime.toISOString());
 
@@ -39,7 +37,6 @@ async function getAvailableMechanics(serviceIds, date, time) {
       .split(":")
       .map(Number);
 
-    // Calcul de l'heure de fin (toujours en UTC)
     const endTime = new Date(startTime);
     endTime.setUTCHours(
       startTime.getUTCHours() + serviceHours,
@@ -48,20 +45,17 @@ async function getAvailableMechanics(serviceIds, date, time) {
 
     console.log("End Time (UTC):", endTime.toISOString());
 
-    // Définir le début et la fin de la journée en UTC
     const startOfDay = new Date(date);
     startOfDay.setUTCHours(0, 0, 0, 0);
     const endOfDay = new Date(date);
     endOfDay.setUTCHours(23, 59, 59, 999);
 
-    // Récupérer tous les rendez-vous sur la journée donnée
     const sameDayAppointments = await Appointment.find({
       date: { $gte: startOfDay, $lte: endOfDay },
     });
 
-    // Vérifier les conflits d'horaires pour les mécaniciens
     for (let appointment of sameDayAppointments) {
-      const appointmentStartTime = new Date(appointment.date); // ⚠️ Directement UTC depuis MongoDB
+      const appointmentStartTime = new Date(appointment.date);
 
       for (let repair of appointment.repairs) {
         const repairService = await Service.findById(repair.service);
@@ -89,7 +83,6 @@ async function getAvailableMechanics(serviceIds, date, time) {
           `   📌 appointmentEndTime: ${appointmentEndTime.toISOString()}`
         );
 
-        // Vérifier s'il y a un chevauchement
         if (startTime < appointmentEndTime && endTime > appointmentStartTime) {
           console.log(
             "🚨 Chevauchement détecté pour le mécanicien :",
@@ -103,13 +96,12 @@ async function getAvailableMechanics(serviceIds, date, time) {
 
   console.log("🚧 Mécaniciens occupés :", [...busyMechanics]);
 
-  // Chercher les mécaniciens disponibles
   const availableMechanics = await User.find({
     specialities: { $in: serviceIds },
-    _id: { $nin: [...busyMechanics] }, // Exclure les mécaniciens occupés
+    _id: { $nin: [...busyMechanics] },
   }).select("_id firstname");
 
-  return availableMechanics; // Retourner sous forme de tableau
+  return availableMechanics;
 }
 
 module.exports = { getAvailableMechanics, createAppointment };

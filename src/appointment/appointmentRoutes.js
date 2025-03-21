@@ -5,11 +5,10 @@ router.get("/", async (req, res) => {
   try {
     let { serviceId, date, time } = req.query;
 
-    // S'assurer que serviceId est un tableau, même s'il y a un seul élément
     if (!Array.isArray(serviceId)) {
-      serviceId = [serviceId]; // Convertir en tableau si un seul élément
+      serviceId = [serviceId];
     }
-    const localDate = new Date(`${date}T${time}:00`); // Date en heure locale
+    const localDate = new Date(`${date}T${time}:00`);
     const utcDate = new Date(
       localDate.getTime() - localDate.getTimezoneOffset() * 60000
     );
@@ -18,9 +17,9 @@ router.get("/", async (req, res) => {
     console.log("Date convertie en UTC :", utcDate);
 
     const mechanics = await appointmentService.getAvailableMechanics(
-      serviceId, // Maintenant un tableau
-      utcDate.toISOString().split("T")[0], // Garder uniquement la partie date
-      utcDate.toISOString().split("T")[1].slice(0, 5) // Garder HH:mm
+      serviceId,
+      utcDate.toISOString().split("T")[0],
+      utcDate.toISOString().split("T")[1].slice(0, 5)
     );
 
     res.json(mechanics);
@@ -29,7 +28,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Route pour créer un rendez-vous
 router.post("/", async (req, res) => {
   try {
     const appointmentData = req.body;
