@@ -76,4 +76,41 @@ async function getAvailableMechanics(date, prestations) {
   }
 }
 
-module.exports = { getAvailableMechanics, createAppointment };
+async function getAllAppointment() {
+  try {
+    const appointments = await Appointment.find({})
+      .populate({
+        path: 'vehicle',
+        populate: {
+          path: 'model', 
+          populate: {
+            path: 'brand' 
+          }
+        }
+      })
+      .populate('prestations.service') 
+      .populate('mechanic'); 
+
+    const result = appointments.flatMap(appointment => {
+    
+      const brand = appointment.vehicle?.model?.brand?.name || 'Inconnu'; 
+      const model = appointment.vehicle?.model?.name || 'Inconnu'; 
+      const mechanic = appointment.mechanic ? `${appointment.mechanic.firstname} ${appointment.mechanic.lastname}` : 'Inconnu';
+
+      return appointment.prestations.map(prestation => ({
+        brand: brand,
+        model: model,
+        serviceName: prestation.service?.name || 'Inconnu',
+        mechanic: mechanic,
+        status: appointment.status || false
+      }));
+    });
+
+    console.log(result); 
+    return result;
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+module.exports = { getAvailableMechanics, createAppointment, getAllAppointment};

@@ -6,7 +6,7 @@ router.get("/", async (req,res) => {
         const vehicles = await vehicleService.getAllVehicle();
         res.status(200).json(vehicles);
     } catch (error) {
-        
+        res.status(400).json({error: error.message});
     }
 });
 
