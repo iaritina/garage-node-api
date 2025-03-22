@@ -45,4 +45,14 @@ router.post("/", async (req, res) => {
   }
 });
 
+
+router.get("/monitoring", async(req, res) => {
+  try {
+      const appointments = await appointmentService.getAllAppointment();
+      res.status(200).json(appointments)
+  } catch (error) {
+    res.status(400).json({error: error.message});
+  }
+})
+
 module.exports = router;
