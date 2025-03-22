@@ -25,6 +25,10 @@ const appointmentSchema = new Schema({
     type: Date,
     required: [true, "Date is required"],
   },
+  status: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Appointment = mongoose.model("Appointment", appointmentSchema);

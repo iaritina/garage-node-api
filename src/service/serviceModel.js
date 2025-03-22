@@ -15,7 +15,7 @@ const serviceSchema = new Schema({
     required: [true, "The next service Km is requires"],
   },
   duration: {
-    type: String,
+    type: Number,
     required: [true, "The duration of the service is required"],
   },
   commission: { type: Number, required: [true, "The commission is requires"] },

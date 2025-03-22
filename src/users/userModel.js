@@ -28,16 +28,15 @@ const userSchema = new Schema({
     type: [String],
     required: [true, "Phone number is required"],
   },
-  specialities: {
-    type: [Schema.Types.ObjectId],
-    ref: "Service",
-  },
   role: {
     type: String,
     enum: ["manager", "mecanicien", "client"],
     default: "client",
   },
-
+  maxWorkinghours: {
+    type: Number,
+    default: 480, //8h
+  },
   isDeleted: { type: Boolean, default: false },
 });
 

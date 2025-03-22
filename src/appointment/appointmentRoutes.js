@@ -1,28 +1,33 @@
 const router = require("express").Router();
 const appointmentService = require("./appointmentService");
 
-router.get("/", async (req, res) => {
+router.post("/available-mechanics", async (req, res) => {
   try {
-    let { serviceId, date, time } = req.query;
+    const { date, prestations } = req.body;
 
-    if (!Array.isArray(serviceId)) {
-      serviceId = [serviceId];
+    if (
+      !date ||
+      !prestations ||
+      !Array.isArray(prestations) ||
+      prestations.length === 0
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Date et prestations sont requis." });
     }
-    const localDate = new Date(`${date}T${time}:00`);
-    const utcDate = new Date(
-      localDate.getTime() - localDate.getTimezoneOffset() * 60000
+
+    const availableMechanics = await appointmentService.getAvailableMechanics(
+      date,
+      prestations
     );
 
-    console.log("Date locale reçue :", localDate);
-    console.log("Date convertie en UTC :", utcDate);
+    if (availableMechanics.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Aucun mécanicien disponible pour cette date." });
+    }
 
-    const mechanics = await appointmentService.getAvailableMechanics(
-      serviceId,
-      utcDate.toISOString().split("T")[0],
-      utcDate.toISOString().split("T")[1].slice(0, 5)
-    );
-
-    res.json(mechanics);
+    res.json(availableMechanics);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
