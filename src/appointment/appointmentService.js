@@ -1,5 +1,5 @@
 const Appointment = require("./appointmentModel");
-const Service = require("../service/serviceModel");
+const prestationService = require("../service/service");
 const User = require("../users/userModel");
 
 async function createAppointment(data) {
@@ -13,95 +13,67 @@ async function createAppointment(data) {
   }
 }
 
-async function getAvailableMechanics(serviceIds, date, time) {
-  const finalMechanicsAvailable = new Set();
+async function getAvailableMechanics(date, prestations) {
+  try {
+    // Récupérer tous les mécaniciens
+    const mechanics = await User.find({ role: "mecanicien" });
 
-  const services = await Service.find({ _id: { $in: serviceIds } });
-
-  if (services.length !== serviceIds.length) {
-    throw new Error(
-      "Certains services sont introuvables ou ont une durée non définie."
-    );
-  }
-
-  const [hours, minutes] = time.split(":").map(Number);
-  const startTime = new Date(date);
-  startTime.setUTCHours(hours, minutes, 0, 0);
-
-  console.log("Start Time (UTC):", startTime.toISOString());
-
-  let busyMechanics = new Set();
-
-  for (let service of services) {
-    const [serviceHours, serviceMinutes] = service.duration
-      .split(":")
-      .map(Number);
-
-    const endTime = new Date(startTime);
-    endTime.setUTCHours(
-      startTime.getUTCHours() + serviceHours,
-      startTime.getUTCMinutes() + serviceMinutes
+    // Calculer le nombre total de minutes nécessaires pour les prestations
+    const services = await prestationService.findServicesByPrestations(
+      prestations
     );
 
-    console.log("End Time (UTC):", endTime.toISOString());
+    const totalDuration = services.reduce(
+      (acc, service) => acc + service.duration,
+      0
+    );
 
-    const startOfDay = new Date(date);
-    startOfDay.setUTCHours(0, 0, 0, 0);
-    const endOfDay = new Date(date);
-    endOfDay.setUTCHours(23, 59, 59, 999);
+    // Récupérer la charge de travail actuelle des mécaniciens
+    const workload = await Appointment.aggregate([
+      {
+        $match: {
+          date: {
+            $gte: new Date(`${date}T00:00:00.000Z`),
+            $lt: new Date(`${date}T23:59:59.999Z`),
+          },
+        },
+      },
+      { $unwind: "$prestations" },
+      {
+        $lookup: {
+          from: "services",
+          localField: "prestations.service",
+          foreignField: "_id",
+          as: "serviceDetails",
+        },
+      },
+      { $unwind: "$serviceDetails" },
+      {
+        $group: {
+          _id: "$mechanic",
+          totalHours: { $sum: "$serviceDetails.duration" },
+        },
+      },
+    ]);
 
-    const sameDayAppointments = await Appointment.find({
-      date: { $gte: startOfDay, $lte: endOfDay },
+    const workloadMap = {};
+    workload.forEach((w) => (workloadMap[w._id] = w.totalHours));
+
+    const availableMechanics = mechanics.filter((m) => {
+      const workedHours = workloadMap[m._id] || 0;
+      const remainingHours = m.maxWorkinghours - workedHours;
+
+      return remainingHours >= totalDuration;
     });
 
-    for (let appointment of sameDayAppointments) {
-      const appointmentStartTime = new Date(appointment.date);
-
-      for (let repair of appointment.repairs) {
-        const repairService = await Service.findById(repair.service);
-        if (!repairService || !repairService.duration) {
-          console.log("Service introuvable ou durée absente:", repair.service);
-          continue;
-        }
-
-        const [repairHours, repairMinutes] = repairService.duration
-          .split(":")
-          .map(Number);
-        const appointmentEndTime = new Date(appointmentStartTime);
-        appointmentEndTime.setUTCHours(
-          appointmentStartTime.getUTCHours() + repairHours,
-          appointmentStartTime.getUTCMinutes() + repairMinutes
-        );
-
-        console.log(`🔍 Vérification chevauchement :`);
-        console.log(`   📌 startTime: ${startTime.toISOString()}`);
-        console.log(`   📌 endTime: ${endTime.toISOString()}`);
-        console.log(
-          `   📌 appointmentStartTime: ${appointmentStartTime.toISOString()}`
-        );
-        console.log(
-          `   📌 appointmentEndTime: ${appointmentEndTime.toISOString()}`
-        );
-
-        if (startTime < appointmentEndTime && endTime > appointmentStartTime) {
-          console.log(
-            "🚨 Chevauchement détecté pour le mécanicien :",
-            repair.user
-          );
-          busyMechanics.add(repair.user.toString());
-        }
-      }
-    }
+    return availableMechanics;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des mécaniciens disponibles:",
+      error
+    );
+    throw error;
   }
-
-  console.log("🚧 Mécaniciens occupés :", [...busyMechanics]);
-
-  const availableMechanics = await User.find({
-    specialities: { $in: serviceIds },
-    _id: { $nin: [...busyMechanics] },
-  }).select("_id firstname");
-
-  return availableMechanics;
 }
 
 module.exports = { getAvailableMechanics, createAppointment };

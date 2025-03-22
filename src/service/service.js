@@ -56,6 +56,14 @@ const deleteService = async (id) => {
   }
 };
 
+const findServicesByPrestations = async (prestations) => {
+  try {
+    return await Service.find({ _id: { $in: prestations } });
+  } catch (error) {
+    throw new Error("Error: " + error.message);
+  }
+};
+
 module.exports = {
   createService,
   getAll,
@@ -63,4 +71,5 @@ module.exports = {
   getByIds,
   update,
   deleteService,
+  findServicesByPrestations,
 };
