@@ -53,6 +53,16 @@ router.get("/monitoring", async(req, res) => {
   } catch (error) {
     res.status(400).json({error: error.message});
   }
-})
+});
+
+router.get("/mechanic-task/:id", async (req, res) => {
+  try {
+    const task = await appointmentService.getListAppointmentByMechanic(req.params.id);
+    console.log("task",task)
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(400).json({error: error});
+  }
+});
 
 module.exports = router;

@@ -130,8 +130,69 @@ async function getAllAppointment() {
   }
 }
 
+
+async function getListAppointmentByMechanic(mechanic) {
+  try {
+    const tasks = await Appointment.find({mechanic: mechanic, status: false})
+      .populate({
+        path: "vehicle",
+        populate: {
+          path: "model",
+          populate: {
+            path: "brand",
+          },
+        },
+      })
+      .populate("prestations.service")
+      .populate("mechanic");
+
+    const result = appointments.flatMap((appointment) => {
+      const brand = appointment.vehicle?.model?.brand?.name || "Inconnu";
+      const model = appointment.vehicle?.model?.name || "Inconnu";
+      const mechanic = appointment.mechanic
+        ? `${appointment.mechanic.firstname} ${appointment.mechanic.lastname}`
+        : "Inconnu";
+
+      return appointment.prestations.map((prestation) => ({
+        brand: brand,
+        model: model,
+        serviceName: prestation.service?.name || "Inconnu",
+        mechanic: mechanic,
+        status: appointment.status || false,
+      }));
+    });
+
+    console.log(result);
+    return result;
+  } catch (error) {
+    throw new Error("Error :",error);
+  }
+}
+
 module.exports = {
   getAvailableMechanics,
   createAppointment,
   getAllAppointment,
 };
+
+async function getListAppointmentByMechanic(mechanic) {
+  try {
+    const tasks = await Appointment.find({mechanic: mechanic, status: false})
+      .populate({
+        path: 'vehicle',
+        populate: {
+          path: 'model', 
+          populate: {
+            path: 'brand' 
+          }
+        }
+      })
+      .populate('prestations.service') 
+      .populate('mechanic'); 
+      return tasks;
+  } catch (error) {
+    throw new Error("Error :",error);
+  }
+}
+
+module.exports = { getAvailableMechanics, createAppointment, getAllAppointment,getListAppointmentByMechanic };
