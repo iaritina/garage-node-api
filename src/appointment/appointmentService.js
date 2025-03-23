@@ -1,6 +1,7 @@
 const Appointment = require("./appointmentModel");
 const prestationService = require("../service/service");
 const User = require("../users/userModel");
+const { application } = require("express");
 
 async function createAppointment(data) {
   try {
@@ -113,4 +114,25 @@ async function getAllAppointment() {
   }
 }
 
-module.exports = { getAvailableMechanics, createAppointment, getAllAppointment};
+
+async function getListAppointmentByMechanic(mechanic) {
+  try {
+    const tasks = await Appointment.find({mechanic: mechanic, status: false})
+      .populate({
+        path: 'vehicle',
+        populate: {
+          path: 'model', 
+          populate: {
+            path: 'brand' 
+          }
+        }
+      })
+      .populate('prestations.service') 
+      .populate('mechanic'); 
+      return tasks;
+  } catch (error) {
+    throw new Error("Error :",error);
+  }
+}
+
+module.exports = { getAvailableMechanics, createAppointment, getAllAppointment,getListAppointmentByMechanic };
