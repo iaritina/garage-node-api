@@ -1,9 +1,25 @@
 const Appointment = require("./appointmentModel");
 const prestationService = require("../service/service");
-const User = require("../users/userModel");
+const userService = require("../users/userService");
+const vehicleService = require("../vehicle/vehicle-service");
 
 async function createAppointment(data) {
   try {
+    const mechanic = await userService.getUserById(data.mechanic);
+    const prestationsWithDetails = await Promise.all(
+      data.prestations.map(async (prestation) => {
+        const service = await prestationService.getById(prestation.service);
+        return { ...prestation, duration: service?.duration || 0 };
+      })
+    );
+
+    const totalDuration = prestationsWithDetails.reduce(
+      (sum, prestation) => sum + prestation.duration,
+      0
+    );
+    mechanic.maxWorkinghours -= totalDuration;
+    await mechanic.save(); //maj de l'heure de travail
+
     const appointment = new Appointment(data);
     await appointment.save();
     return appointment;
@@ -16,7 +32,7 @@ async function createAppointment(data) {
 async function getAvailableMechanics(date, prestations) {
   try {
     // Récupérer tous les mécaniciens
-    const mechanics = await User.find({ role: "mecanicien" });
+    const mechanics = await userService.getAllMechanics();
 
     // Calculer le nombre total de minutes nécessaires pour les prestations
     const services = await prestationService.findServicesByPrestations(
@@ -80,37 +96,42 @@ async function getAllAppointment() {
   try {
     const appointments = await Appointment.find({})
       .populate({
-        path: 'vehicle',
+        path: "vehicle",
         populate: {
-          path: 'model', 
+          path: "model",
           populate: {
-            path: 'brand' 
-          }
-        }
+            path: "brand",
+          },
+        },
       })
-      .populate('prestations.service') 
-      .populate('mechanic'); 
+      .populate("prestations.service")
+      .populate("mechanic");
 
-    const result = appointments.flatMap(appointment => {
-    
-      const brand = appointment.vehicle?.model?.brand?.name || 'Inconnu'; 
-      const model = appointment.vehicle?.model?.name || 'Inconnu'; 
-      const mechanic = appointment.mechanic ? `${appointment.mechanic.firstname} ${appointment.mechanic.lastname}` : 'Inconnu';
+    const result = appointments.flatMap((appointment) => {
+      const brand = appointment.vehicle?.model?.brand?.name || "Inconnu";
+      const model = appointment.vehicle?.model?.name || "Inconnu";
+      const mechanic = appointment.mechanic
+        ? `${appointment.mechanic.firstname} ${appointment.mechanic.lastname}`
+        : "Inconnu";
 
-      return appointment.prestations.map(prestation => ({
+      return appointment.prestations.map((prestation) => ({
         brand: brand,
         model: model,
-        serviceName: prestation.service?.name || 'Inconnu',
+        serviceName: prestation.service?.name || "Inconnu",
         mechanic: mechanic,
-        status: appointment.status || false
+        status: appointment.status || false,
       }));
     });
 
-    console.log(result); 
+    console.log(result);
     return result;
   } catch (error) {
     console.error("Erreur:", error);
   }
 }
 
-module.exports = { getAvailableMechanics, createAppointment, getAllAppointment};
+module.exports = {
+  getAvailableMechanics,
+  createAppointment,
+  getAllAppointment,
+};
