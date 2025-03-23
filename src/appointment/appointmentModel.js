@@ -29,6 +29,10 @@ const appointmentSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  isCanceled: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const Appointment = mongoose.model("Appointment", appointmentSchema);

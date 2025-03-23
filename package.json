@@ -22,6 +22,7 @@
     "garage-node-api": "file:",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
     "nodemailer-express-handlebars": "^7.0.0"
   }
