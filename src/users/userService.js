@@ -92,61 +92,13 @@ const getUserByEmail = async (email) => {
   }
 };
 
-const verifyAppointmentDate = async (mechanic, givenDate, serviceIds) => {
-  // Récupérer les services à partir des IDs
-  const services = await prestationService.getByIds(serviceIds);
-
-  // Convertir la durée du service en minutes
-  const getMaxServiceDuration = (services) => {
-    return services.reduce((maxDuration, service) => {
-      const durationParts = service.duration.split(":");
-      console.log(durationParts);
-      const durationInMinutes =
-        parseInt(durationParts[0]) * 60 + parseInt(durationParts[1]);
-      return Math.max(maxDuration, durationInMinutes);
-    }, 0);
-  };
-
-  const maxServiceDuration = getMaxServiceDuration(services);
-  const endDate = new Date(givenDate);
-  endDate.setMinutes(endDate.getMinutes() + maxServiceDuration);
-
-  const appointments = await appointmentModel.find({
-    "repairs.mechanic": mechanic._id,
-    date: {
-      $gte: givenDate,
-      $lt: endDate,
-    },
-  });
-
-  // Si aucune appointment n'est trouvée pour cette période, le mécanicien est disponible
-  return appointments.length === 0;
-};
-
-/**
- *
- * @param {Array} mechanics
- * @param {Number} mechanicsCount
- */
-const checkMechanicsAvailability = async (
-  mechanics,
-  mechanicsCount,
-  givenDate,
-  service
-) => {
-  const result = [];
-  const unaivalable = [];
-  for (const data of mechanics) {
-    const mechanic = await User.findOne({ _id: data });
-    const isMechanicAvailable = await verifyAppointmentDate(
-      mechanic,
-      givenDate,
-      service
-    );
-    if (isMechanicAvailable) result.push(mechanic);
-    else unaivalable.push(mechanic.firstname);
+const getAllMechanics = async () => {
+  try {
+    const mechanics = await User.find({ role: "mecanicien" });
+    return mechanics;
+  } catch (error) {
+    throw new Error("Error", error.message);
   }
-  return { allAvailable: result.length == mechanicsCount, unaivalable };
 };
 
 module.exports = {
@@ -158,5 +110,5 @@ module.exports = {
   updateUser,
   login,
   getUserByEmail,
-  checkMechanicsAvailability,
+  getAllMechanics,
 };
