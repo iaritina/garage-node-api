@@ -1,8 +1,6 @@
 const User = require("./userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const appointmentModel = require("../appointment/appointmentModel");
-const prestationService = require("../service/service");
 require("dotenv").config();
 
 const getAllUser = async () => {

@@ -5,49 +5,61 @@ const userService = require("../users/userService");
 const sendEmail = require("../mail/mailer");
 
 router.get("/", async (req, res) => {
-    try 
-    {
-        res.json(await productService.getAllProduct());
-    } catch (error) {
-        res.status(400).json({error: error.message});
-    }
+  try {
+    res.json(await productService.getAllProduct());
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
-router.post("/", async (req,res) => {
-    try {
-        const product = await productService.createProduct(req.body);
-        const users = await userService.getAllUser();
-        const emails = users.map(user => user.email);
+router.post("/", async (req, res) => {
+  try {
+    const product = await productService.createProduct(req.body);
+    const users = await userService.getAllUser();
+    const emails = users.map((user) => user.email);
 
-        emails.forEach(email => {
-            sendEmail(email, "Nouveau Produit Disponible !", "newProduct", {
-                productName: product.name,
-                price: product.current_price.toLocaleString("fr-FR")
-            });
-        })
+    emails.forEach((email) => {
+      sendEmail(email, "Nouveau Produit Disponible !", "newProduct", {
+        productName: product.name,
+        price: product.current_price.toLocaleString("fr-FR"),
+      });
+    });
 
-        res.status(201).json(product);
-    } catch (error) {
-        res.status(400).json({error: error.message});
-    }
+    res.status(201).json(product);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
-router.put("/delete/:id", async (req,res) => {
-    try {
-        const product = await productService.deleteProduct(req.params.id);
-        res.status(200).json(product);
-    } catch (error) {
-        res.status(400).json({error: error.message});
-    }
+router.put("/delete/:id", async (req, res) => {
+  try {
+    const product = await productService.deleteProduct(req.params.id);
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 });
 
-router.patch("/:id", async(req,res) => {
-    try {
-        const product = await productService.updateProduct(req.params.id, req.body);
-        res.status(200).json(product);
-    } catch (error) {
-        res.status(400).json({error: error.message});
-    }
-})
+router.patch("/:id", async (req, res) => {
+  try {
+    const product = await productService.updateProduct(req.params.id, req.body);
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+router.post("/services", async (req, res) => {
+  try {
+    const { prestationIds } = req.body;
+    console.log(prestationIds);
+    const produits = await productService.getProductsForSelectedPrestations(
+      prestationIds
+    );
+    res.json(produits);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
 
 module.exports = router;
