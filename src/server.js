@@ -1,6 +1,7 @@
 const { default: mongoose } = require("./database/mongodb");
 const express = require("express");
 const cors = require("cors");
+require("./users/userCron"); //cron mecanicien
 require("dotenv").config();
 
 const app = express();
@@ -29,7 +30,7 @@ app
   .use("/products", productRoutes)
   .use("/mail", mailRoutes)
   .use("/appointments", appointmentRoutes)
-  .use("/interventions",interventionRoutes)
+  .use("/interventions", interventionRoutes);
 
 //connection to database
 mongoose;
