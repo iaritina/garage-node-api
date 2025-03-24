@@ -5,7 +5,7 @@ require("dotenv").config();
 
 const getAllUser = async () => {
   try {
-    return await User.find();
+    return await User.find({});
   } catch (error) {
     throw new Error("Error: " + error.message);
   }
