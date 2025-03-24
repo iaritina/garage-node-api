@@ -7,10 +7,7 @@ require("dotenv").config();
 
 const getAllUser = async () => {
   try {
-    return await User.find().populate({
-      path: "specialities",
-      select: "_id name",
-    });
+    return await User.find({});
   } catch (error) {
     throw new Error("Error: " + error.message);
   }

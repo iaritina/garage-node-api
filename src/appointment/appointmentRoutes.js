@@ -65,4 +65,13 @@ router.get("/mechanic-task/:id", async (req, res) => {
   }
 });
 
+router.put("/complete-task/:id", async(req, res) => {
+  try {
+    const task = await appointmentService.completeTask(req.params.id);
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(400).json({error: error});
+  }
+});
+
 module.exports = router;

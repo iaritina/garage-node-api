@@ -195,4 +195,12 @@ async function getListAppointmentByMechanic(mechanic) {
   }
 }
 
-module.exports = { getAvailableMechanics, createAppointment, getAllAppointment,getListAppointmentByMechanic };
+const completeTask = async (id) => {
+  try {
+    return await Appointment.findByIdAndUpdate(id, { $set: {status: true} }, {new: true});
+  } catch (error) {
+    throw new Error("Error :",error);    
+  }
+}
+
+module.exports = { getAvailableMechanics, createAppointment, getAllAppointment,getListAppointmentByMechanic, completeTask };
