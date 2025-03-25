@@ -31,10 +31,8 @@ async function createAppointment(data) {
 
 async function getAvailableMechanics(date, prestations) {
   try {
-    // Récupérer tous les mécaniciens
     const mechanics = await userService.getAllMechanics();
 
-    // Calculer le nombre total de minutes nécessaires pour les prestations
     const services = await prestationService.findServicesByPrestations(
       prestations
     );
@@ -44,7 +42,6 @@ async function getAvailableMechanics(date, prestations) {
       0
     );
 
-    // Récupérer la charge de travail actuelle des mécaniciens
     const workload = await Appointment.aggregate([
       {
         $match: {
@@ -130,10 +127,9 @@ async function getAllAppointment() {
   }
 }
 
-
 async function getListAppointmentByMechanic(mechanic) {
   try {
-    const tasks = await Appointment.find({mechanic: mechanic, status: false})
+    const tasks = await Appointment.find({ mechanic: mechanic, status: false })
       .populate({
         path: "vehicle",
         populate: {
@@ -165,7 +161,7 @@ async function getListAppointmentByMechanic(mechanic) {
     console.log(result);
     return result;
   } catch (error) {
-    throw new Error("Error :",error);
+    throw new Error("Error :", error);
   }
 }
 
@@ -177,30 +173,49 @@ module.exports = {
 
 async function getListAppointmentByMechanic(mechanic) {
   try {
-    const tasks = await Appointment.find({mechanic: mechanic, status: false})
+    const tasks = await Appointment.find({ mechanic: mechanic, status: false })
       .populate({
-        path: 'vehicle',
+        path: "vehicle",
         populate: {
-          path: 'model', 
+          path: "model",
           populate: {
-            path: 'brand' 
-          }
-        }
+            path: "brand",
+          },
+        },
       })
-      .populate('prestations.service') 
-      .populate('mechanic'); 
-      return tasks;
+      .populate("prestations.service")
+      .populate("mechanic");
+    return tasks;
   } catch (error) {
-    throw new Error("Error :",error);
+    throw new Error("Error :", error);
   }
 }
 
 const completeTask = async (id) => {
   try {
-    return await Appointment.findByIdAndUpdate(id, { $set: {status: true} }, {new: true});
+    return await Appointment.findByIdAndUpdate(
+      id,
+      { $set: { status: true } },
+      { new: true }
+    );
   } catch (error) {
-    throw new Error("Error :",error);    
+    throw new Error("Error :", error);
   }
-}
+};
 
-module.exports = { getAvailableMechanics, createAppointment, getAllAppointment,getListAppointmentByMechanic, completeTask };
+const getClientAppointments = async (clientId) => {
+  try {
+    return await Appointment.find({ client: clientId });
+  } catch (error) {
+    throw new Error("Error :", error);
+  }
+};
+
+module.exports = {
+  getAvailableMechanics,
+  createAppointment,
+  getAllAppointment,
+  getListAppointmentByMechanic,
+  completeTask,
+  getClientAppointments,
+};

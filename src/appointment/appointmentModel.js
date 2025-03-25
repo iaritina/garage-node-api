@@ -14,6 +14,11 @@ const prestationsSchema = new Schema({
 });
 
 const appointmentSchema = new Schema({
+  client: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "Client is required"],
+  },
   vehicle: {
     type: Schema.Types.ObjectId,
     ref: "Vehicle",

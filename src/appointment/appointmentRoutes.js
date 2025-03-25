@@ -45,32 +45,43 @@ router.post("/", async (req, res) => {
   }
 });
 
-
-router.get("/monitoring", async(req, res) => {
+router.get("/monitoring", async (req, res) => {
   try {
-      const appointments = await appointmentService.getAllAppointment();
-      res.status(200).json(appointments)
+    const appointments = await appointmentService.getAllAppointment();
+    res.status(200).json(appointments);
   } catch (error) {
-    res.status(400).json({error: error.message});
+    res.status(400).json({ error: error.message });
   }
 });
 
 router.get("/mechanic-task/:id", async (req, res) => {
   try {
-    const task = await appointmentService.getListAppointmentByMechanic(req.params.id);
-    console.log("task",task)
+    const task = await appointmentService.getListAppointmentByMechanic(
+      req.params.id
+    );
+    console.log("task", task);
     res.status(200).json(task);
   } catch (error) {
-    res.status(400).json({error: error});
+    res.status(400).json({ error: error });
   }
 });
 
-router.put("/complete-task/:id", async(req, res) => {
+router.put("/complete-task/:id", async (req, res) => {
   try {
     const task = await appointmentService.completeTask(req.params.id);
     res.status(200).json(task);
   } catch (error) {
-    res.status(400).json({error: error});
+    res.status(400).json({ error: error });
+  }
+});
+
+router.get("/client/:clientId", async (req, res) => {
+  try {
+    const clientId = req.params.clientId;
+    const clientAppt = await appointmentService.getClientAppointments(clientId);
+    res.status(200).json(clientAppt);
+  } catch (error) {
+    res.status(400).json({ error: error });
   }
 });
 
