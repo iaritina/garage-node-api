@@ -27,7 +27,7 @@ async function resetWorkingHours() {
   }
 }
 
-cron.schedule("0 13 * * *", resetWorkingHours, {
+cron.schedule("0 0 * * *", resetWorkingHours, {
   timezone: "Indian/Antananarivo",
 });
 
