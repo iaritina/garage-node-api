@@ -33,9 +33,18 @@ const userSchema = new Schema({
     enum: ["manager", "mecanicien", "client"],
     default: "client",
   },
-  maxWorkinghours: {
-    type: Number,
-    default: 480, //8h
+  workingHours: {
+    type: Map,
+    of: Number,
+    default: {
+      Monday: 480, // 8 hours
+      Tuesday: 480,
+      Wednesday: 480,
+      Thursday: 480,
+      Friday: 480,
+      Saturday: 480,
+      Sunday: 0, // No working hours on Sunday
+    },
   },
   isDeleted: { type: Boolean, default: false },
 });

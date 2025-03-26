@@ -92,7 +92,7 @@ const getAllMechanics = async () => {
     const mechanics = await User.find({ role: "mecanicien" });
     return mechanics;
   } catch (error) {
-    throw new Error("Error", error.message);
+    throw new Error("Error: " + error.message);
   }
 };
 

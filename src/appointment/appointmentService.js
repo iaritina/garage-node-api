@@ -17,14 +17,32 @@ async function createAppointment(data) {
       (sum, prestation) => sum + prestation.duration,
       0
     );
-    mechanic.maxWorkinghours -= totalDuration;
-    await mechanic.save(); //maj de l'heure de travail
+
+    // Calculer le jour de la semaine pour la date du rendez-vous
+    const appointmentDate = new Date(data.date);
+    const dayOfWeek = appointmentDate.toLocaleString("en-US", {
+      weekday: "long",
+    });
+
+    // Vérifier si le mécanicien a suffisamment d'heures disponibles pour ce jour
+    const maxHoursForDay = mechanic.workingHours.get(dayOfWeek) || 0;
+    if (maxHoursForDay < totalDuration) {
+      throw new Error(
+        `Le mécanicien n'a pas suffisamment d'heures disponibles pour le ${dayOfWeek}.`
+      );
+    }
+
+    // Mettre à jour les heures restantes pour ce jour
+    mechanic.workingHours.set(dayOfWeek, maxHoursForDay - totalDuration);
+    await mechanic.save();
 
     const appointment = new Appointment(data);
     await appointment.save();
+
     await interventionService.createIntervention({
       appointment: appointment._id,
     });
+
     return appointment;
   } catch (error) {
     console.error("Erreur lors de la création du rendez-vous :", error);
@@ -75,10 +93,16 @@ async function getAvailableMechanics(date, prestations) {
     const workloadMap = {};
     workload.forEach((w) => (workloadMap[w._id] = w.totalHours));
 
-    const availableMechanics = mechanics.filter((m) => {
-      const workedHours = workloadMap[m._id] || 0;
-      const remainingHours = m.maxWorkinghours - workedHours;
+    // Filtrer les mécaniciens disponibles
+    const availableMechanics = mechanics.filter((mechanic) => {
+      const dayOfWeek = new Date(date).toLocaleString("en-US", {
+        weekday: "long",
+      });
+      const maxHoursForDay = mechanic.workingHours.get(dayOfWeek) || 0; // Heures max pour ce jour
+      const workedHours = workloadMap[mechanic._id] || 0; // Heures déjà travaillées
+      const remainingHours = maxHoursForDay - workedHours; // Heures restantes
 
+      // Vérifier si le mécanicien a suffisamment d'heures restantes pour la durée totale des prestations
       return remainingHours >= totalDuration;
     });
 
@@ -168,12 +192,6 @@ async function getListAppointmentByMechanic(mechanic) {
   }
 }
 
-module.exports = {
-  getAvailableMechanics,
-  createAppointment,
-  getAllAppointment,
-};
-
 async function getListAppointmentByMechanic(mechanic) {
   try {
     const tasks = await Appointment.find({ mechanic: mechanic, status: false })
@@ -208,9 +226,21 @@ const completeTask = async (id) => {
 
 const getClientAppointments = async (clientId) => {
   try {
-    return await Appointment.find({ client: clientId });
+    return await Appointment.find({ client: clientId })
+      .populate({
+        path: "vehicle",
+        populate: {
+          path: "model",
+          populate: {
+            path: "brand",
+            select: "name",
+          },
+        },
+      })
+      .populate({ path: "prestations.service", select: "name" })
+      .populate({ path: "mechanic", select: "firstname lastname" });
   } catch (error) {
-    throw new Error("Error :", error);
+    throw new Error("Error: " + error);
   }
 };
 
