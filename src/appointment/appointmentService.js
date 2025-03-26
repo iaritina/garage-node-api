@@ -1,7 +1,7 @@
 const Appointment = require("./appointmentModel");
 const prestationService = require("../service/service");
 const userService = require("../users/userService");
-const vehicleService = require("../vehicle/vehicle-service");
+const interventionService = require("../intervention/interventionService");
 
 async function createAppointment(data) {
   try {
@@ -22,6 +22,9 @@ async function createAppointment(data) {
 
     const appointment = new Appointment(data);
     await appointment.save();
+    await interventionService.createIntervention({
+      appointment: appointment._id,
+    });
     return appointment;
   } catch (error) {
     console.error("Erreur lors de la création du rendez-vous :", error);
