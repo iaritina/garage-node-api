@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 const { Schema } = require("mongoose");
 
 const detailProduct = new Schema({
-  product: { type: [Schema.Types.ObjectId], ref: "Product", required: false },
+  product: { type: Schema.Types.ObjectId, ref: "Product", required: false },
   price: { type: Number, required: false },
-  quantity: { type: Number, required: false },
+  quantity: { type: Number, default: 1, required: false },
 });
 
 const interventionSchema = new Schema(
