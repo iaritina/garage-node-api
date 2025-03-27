@@ -3,11 +3,11 @@ const prestationService = require("../service/service");
 const userService = require("../users/userService");
 const interventionService = require("../intervention/interventionService");
 
-async function createAppointment(data) {
+async function createAppointment(appointmentData, interventionData) {
   try {
-    const mechanic = await userService.getUserById(data.mechanic);
+    const mechanic = await userService.getUserById(appointmentData.mechanic);
     const prestationsWithDetails = await Promise.all(
-      data.prestations.map(async (prestation) => {
+      appointmentData.prestations.map(async (prestation) => {
         const service = await prestationService.getById(prestation.service);
         return { ...prestation, duration: service?.duration || 0 };
       })
@@ -19,7 +19,7 @@ async function createAppointment(data) {
     );
 
     // Calculer le jour de la semaine pour la date du rendez-vous
-    const appointmentDate = new Date(data.date);
+    const appointmentDate = new Date(appointmentData.date);
     const dayOfWeek = appointmentDate.toLocaleString("en-US", {
       weekday: "long",
     });
@@ -36,11 +36,12 @@ async function createAppointment(data) {
     mechanic.workingHours.set(dayOfWeek, maxHoursForDay - totalDuration);
     await mechanic.save();
 
-    const appointment = new Appointment(data);
+    const appointment = new Appointment(appointmentData);
     await appointment.save();
 
     await interventionService.createIntervention({
       appointment: appointment._id,
+      products: interventionData,
     });
 
     return appointment;

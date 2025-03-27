@@ -34,10 +34,9 @@ router.post("/available-mechanics", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  try {
-    const appointmentData = req.body;
+  try {  
     const appointment = await appointmentService.createAppointment(
-      appointmentData
+      req.body.appointment,req.body.intervention
     );
     res.status(201).json(appointment);
   } catch (error) {
