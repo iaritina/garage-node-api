@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .total {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>Facture</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Prix Unitaire</th>
+                <th>Quantité</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each intervention}}
+            <tr>
+                <td>{{product}}</td>
+                <td>{{price}}</td>
+                <td>{{quantity}}</td>
+                <td>{{total}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="total">Total Main d'Oeuvre</td>
+                <td class="total">{{totalLaborCost}}</td>
+            </tr>
+            <tr>
+                <td colspan="3" class="total">Total à payer</td>
+                <td class="total">{{totalAmount}}</td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>

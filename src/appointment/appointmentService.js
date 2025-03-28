@@ -2,6 +2,8 @@ const Appointment = require("./appointmentModel");
 const prestationService = require("../service/service");
 const userService = require("../users/userService");
 const interventionService = require("../intervention/interventionService");
+const sendEmail = require("../mail/mailer");
+const Product = require("../product/productService")
 
 async function createAppointment(appointmentData, interventionData) {
   try {
@@ -18,13 +20,11 @@ async function createAppointment(appointmentData, interventionData) {
       0
     );
 
-    // Calculer le jour de la semaine pour la date du rendez-vous
     const appointmentDate = new Date(appointmentData.date);
     const dayOfWeek = appointmentDate.toLocaleString("en-US", {
       weekday: "long",
     });
 
-    // Vérifier si le mécanicien a suffisamment d'heures disponibles pour ce jour
     const maxHoursForDay = mechanic.workingHours.get(dayOfWeek) || 0;
     if (maxHoursForDay < totalDuration) {
       throw new Error(
@@ -32,7 +32,6 @@ async function createAppointment(appointmentData, interventionData) {
       );
     }
 
-    // Mettre à jour les heures restantes pour ce jour
     mechanic.workingHours.set(dayOfWeek, maxHoursForDay - totalDuration);
     await mechanic.save();
 
@@ -43,6 +42,36 @@ async function createAppointment(appointmentData, interventionData) {
       appointment: appointment._id,
       products: interventionData,
     });
+
+    const user = await userService.getUserById(appointmentData.client);
+
+    const totalLaborCost = appointmentData.prestations.reduce((sum, prestation) => sum + prestation.price, 0);
+
+    const interventionDataWithProductDetails = await Promise.all(
+      interventionData.map(async (item) => {
+        const populatedProduct = await Product.getProductById(item.product);
+        return {
+          product: populatedProduct.name,
+          price: item.price,
+          quantity: item.quantity,
+          total: item.price * item.quantity
+        };
+      })
+    );
+
+    const totalAmount = interventionDataWithProductDetails.reduce(
+      (sum, item) => sum + item.total, 
+      0
+    ) + totalLaborCost;
+
+   
+    sendEmail(user.email, "Facture", "invoice", {
+      invoiceDate: new Date().toLocaleDateString(),
+      intervention: interventionDataWithProductDetails,
+      totalAmount: totalAmount,
+      totalLaborCost: totalLaborCost
+    });
+
 
     return appointment;
   } catch (error) {
@@ -148,7 +177,6 @@ async function getAllAppointment() {
       }));
     });
 
-    console.log(result);
     return result;
   } catch (error) {
     console.error("Erreur:", error);
@@ -185,8 +213,6 @@ async function getListAppointmentByMechanic(mechanic) {
         status: appointment.status || false,
       }));
     });
-
-    console.log(result);
     return result;
   } catch (error) {
     throw new Error("Error :", error);
