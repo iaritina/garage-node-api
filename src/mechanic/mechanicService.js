@@ -3,8 +3,6 @@ const Appointment = require("../appointment/appointmentModel")
 const Service = require("../service/serviceModel")
 
 const getAmountOfCommission = async (mechanic, date) => {
-    console.log("mechanic",mechanic);
-    console.log("date",date);
     try {
         const start = new Date(date);
         const end = new Date(date);
@@ -41,6 +39,31 @@ const getAmountOfCommission = async (mechanic, date) => {
 }
 
 
+const countRepairedVehicle = async (mechanic, date) => {
+    try {
+        const start = new Date(date);
+        const end = new Date(date);
+
+        start.setHours(0,0,0,0);
+        end.setHours(23,59,59,999);
+
+        const appointments = await Appointment.find({
+            mechanic: mechanic,
+            date: { $gte: start, $lte: end },
+            status: true,
+            isCanceled: false
+        });    
+
+        return appointments.length;
+
+    } catch (error) {
+        throw new Error("Error: ",error.message);
+    }
+    
+}
+
+
 module.exports = {
-    getAmountOfCommission
+    getAmountOfCommission,
+    countRepairedVehicle
 }
