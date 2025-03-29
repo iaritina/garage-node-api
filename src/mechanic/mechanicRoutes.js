@@ -12,4 +12,13 @@ router.get("/:mechanic/:date", async (req, res) => {
 });
 
 
+router.get("/vehicle-count/:mechanic/:date", async (req, res) => {
+    try {
+        const response = await mechanic.countRepairedVehicle(req.params.mechanic, req.params.date);
+        res.json(response);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
