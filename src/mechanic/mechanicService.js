@@ -62,8 +62,36 @@ const countRepairedVehicle = async (mechanic, date) => {
     
 }
 
+const countSerivceByMechanic = async (mechanic) => {
+    console.log("mechanic",mechanic);
+    try {
+        const appointments = await Appointment.find({
+            mechanic: mechanic,
+            status: true,
+            isCanceled: false
+        });
+        console.log("appointments",appointments);
+
+        const serviceCount = {};
+
+        for (const appointment of appointments) {
+            for (const prestation of appointment.prestations) {
+            const service = await Service.findById(prestation.service);
+            if (service) {
+                serviceCount[service.name] = (serviceCount[service.name] || 0) + 1;
+            }
+            }
+        }
+
+        return serviceCount;
+    } catch (error) {
+        throw new Error("Error",error.message);
+    }
+}
+
 
 module.exports = {
     getAmountOfCommission,
-    countRepairedVehicle
+    countRepairedVehicle,
+    countSerivceByMechanic
 }
