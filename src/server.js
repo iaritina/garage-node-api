@@ -17,6 +17,8 @@ const productRoutes = require("./product/productRoutes");
 const mailRoutes = require("./mail/mailerRoutes");
 const appointmentRoutes = require("./appointment/appointmentRoutes");
 const interventionRoutes = require("./intervention/interventionRoutes");
+const mechanicRoutes = require("./mechanic/mechanicRoutes");
+
 
 //middleware
 app
@@ -30,7 +32,8 @@ app
   .use("/products", productRoutes)
   .use("/mail", mailRoutes)
   .use("/appointments", appointmentRoutes)
-  .use("/interventions", interventionRoutes);
+  .use("/interventions", interventionRoutes)
+  .use("/mechanics",mechanicRoutes);
 
 //connection to database
 mongoose;
