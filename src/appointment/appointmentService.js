@@ -357,9 +357,16 @@ const getAppointmentStatsByBrand = async (year = null) => {
       },
 
       {
+        $group: {
+          _id: "$name",
+          appointmentCount: { $sum: "$appointmentCount" },
+        },
+      },
+
+      {
         $project: {
           _id: 0,
-          name: "$name",
+          name: "$_id",
           appointmentCount: 1,
         },
       },
