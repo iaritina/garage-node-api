@@ -93,4 +93,14 @@ router.get("/client/:clientId", async (req, res) => {
   }
 });
 
+router.get("/stats/appointments-by-brand", async (req, res) => {
+  try {
+    const { year } = req.query;
+    const stats = await appointmentService.getAppointmentStatsByBrand(year);
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
