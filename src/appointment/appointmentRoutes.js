@@ -34,9 +34,10 @@ router.post("/available-mechanics", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  try {  
+  try {
     const appointment = await appointmentService.createAppointment(
-      req.body.appointment,req.body.intervention
+      req.body.appointment,
+      req.body.intervention
     );
     res.status(201).json(appointment);
   } catch (error) {
@@ -77,7 +78,15 @@ router.put("/complete-task/:id", async (req, res) => {
 router.get("/client/:clientId", async (req, res) => {
   try {
     const clientId = req.params.clientId;
-    const clientAppt = await appointmentService.getClientAppointments(clientId);
+    const { vehicleId, mechanicId, serviceId, startDate, endDate } = req.query;
+    const clientAppt = await appointmentService.getClientAppointments(
+      clientId,
+      vehicleId,
+      mechanicId,
+      serviceId,
+      startDate,
+      endDate
+    );
     res.status(200).json(clientAppt);
   } catch (error) {
     res.status(400).json({ error: error });

@@ -87,15 +87,6 @@ const getUserByEmail = async (email) => {
   }
 };
 
-const getAllMechanics = async () => {
-  try {
-    const mechanics = await User.find({ role: "mecanicien" });
-    return mechanics;
-  } catch (error) {
-    throw new Error("Error: " + error.message);
-  }
-};
-
 module.exports = {
   getAllUser,
   getUserById,
@@ -105,5 +96,4 @@ module.exports = {
   updateUser,
   login,
   getUserByEmail,
-  getAllMechanics,
 };
