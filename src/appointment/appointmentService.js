@@ -4,6 +4,7 @@ const userService = require("../users/userService");
 const interventionService = require("../intervention/interventionService");
 const sendEmail = require("../mail/mailer");
 const Product = require("../product/productService");
+const Brand = require("../vehiculeBrands/brandModel");
 
 async function createAppointment(appointmentData, interventionData) {
   try {
@@ -303,6 +304,85 @@ const getClientAppointments = async (
   }
 };
 
+//stat - nombre de visite de chaque marque
+const getAppointmentStatsByBrand = async (year = null) => {
+  try {
+    const stats = await Brand.aggregate([
+      {
+        $lookup: {
+          from: "models",
+          localField: "_id",
+          foreignField: "brand",
+          as: "models",
+        },
+      },
+      { $unwind: { path: "$models", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "vehicles",
+          localField: "models._id",
+          foreignField: "model",
+          as: "vehicles",
+        },
+      },
+      { $unwind: { path: "$vehicles", preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: "appointments",
+          let: { vehicleId: "$vehicles._id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$vehicle", "$$vehicleId"] },
+                ...(year
+                  ? {
+                      date: {
+                        $gte: new Date(`${year}-01-01T00:00:00.000Z`),
+                        $lte: new Date(`${year}-12-31T23:59:59.999Z`),
+                      },
+                    }
+                  : {}),
+              },
+            },
+          ],
+          as: "appointments",
+        },
+      },
+      {
+        $addFields: {
+          appointmentCount: { $size: "$appointments" },
+        },
+      },
+
+      {
+        $group: {
+          _id: "$name",
+          appointmentCount: { $sum: "$appointmentCount" },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          appointmentCount: 1,
+        },
+      },
+
+      {
+        $sort: { appointmentCount: -1 },
+      },
+    ]);
+
+    return stats;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des statistiques :", error);
+    throw new Error("Impossible de récupérer les statistiques.");
+  }
+};
+
 module.exports = {
   getAvailableMechanics,
   createAppointment,
@@ -310,4 +390,5 @@ module.exports = {
   getListAppointmentByMechanic,
   completeTask,
   getClientAppointments,
+  getAppointmentStatsByBrand,
 };
