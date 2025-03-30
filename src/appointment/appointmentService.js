@@ -3,7 +3,7 @@ const prestationService = require("../service/service");
 const userService = require("../users/userService");
 const interventionService = require("../intervention/interventionService");
 const sendEmail = require("../mail/mailer");
-const Product = require("../product/productService")
+const Product = require("../product/productService");
 
 async function createAppointment(appointmentData, interventionData) {
   try {
@@ -45,7 +45,10 @@ async function createAppointment(appointmentData, interventionData) {
 
     const user = await userService.getUserById(appointmentData.client);
 
-    const totalLaborCost = appointmentData.prestations.reduce((sum, prestation) => sum + prestation.price, 0);
+    const totalLaborCost = appointmentData.prestations.reduce(
+      (sum, prestation) => sum + prestation.price,
+      0
+    );
 
     const interventionDataWithProductDetails = await Promise.all(
       interventionData.map(async (item) => {
@@ -54,24 +57,23 @@ async function createAppointment(appointmentData, interventionData) {
           product: populatedProduct.name,
           price: item.price,
           quantity: item.quantity,
-          total: item.price * item.quantity
+          total: item.price * item.quantity,
         };
       })
     );
 
-    const totalAmount = interventionDataWithProductDetails.reduce(
-      (sum, item) => sum + item.total, 
-      0
-    ) + totalLaborCost;
+    const totalAmount =
+      interventionDataWithProductDetails.reduce(
+        (sum, item) => sum + item.total,
+        0
+      ) + totalLaborCost;
 
-   
     sendEmail(user.email, "Facture", "invoice", {
       invoiceDate: new Date().toLocaleDateString(),
       intervention: interventionDataWithProductDetails,
       totalAmount: totalAmount,
-      totalLaborCost: totalLaborCost
+      totalLaborCost: totalLaborCost,
     });
-
 
     return appointment;
   } catch (error) {
@@ -251,9 +253,39 @@ const completeTask = async (id) => {
   }
 };
 
-const getClientAppointments = async (clientId) => {
+const getClientAppointments = async (
+  clientId,
+  vehicleId = null,
+  mechanicId = null,
+  serviceId = null,
+  startDate = null,
+  endDate = null
+) => {
   try {
-    return await Appointment.find({ client: clientId })
+    const filters = { client: clientId }; //objet littéral base
+
+    if (vehicleId) {
+      filters.vehicle = vehicleId;
+    }
+    if (mechanicId) {
+      filters.mechanic = mechanicId;
+    }
+    if (serviceId) {
+      filters["prestations.service"] = serviceId;
+    }
+    if (startDate || endDate) {
+      filters.date = {};
+      if (startDate) {
+        filters.date.$gte = new Date(startDate); // Date de début
+      }
+      if (endDate) {
+        const endOfDay = new Date(endDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        filters.date.$lte = endOfDay;
+      }
+    }
+
+    return await Appointment.find(filters)
       .populate({
         path: "vehicle",
         populate: {
