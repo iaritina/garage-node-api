@@ -5,6 +5,7 @@ const interventionService = require("../intervention/interventionService");
 const sendEmail = require("../mail/mailer");
 const Product = require("../product/productService");
 const Brand = require("../vehiculeBrands/brandModel");
+const mechanicService = require("../mechanic/mechanicService");
 
 async function createAppointment(appointmentData, interventionData) {
   try {
@@ -85,7 +86,7 @@ async function createAppointment(appointmentData, interventionData) {
 
 async function getAvailableMechanics(date, prestations) {
   try {
-    const mechanics = await userService.getAllMechanics();
+    const mechanics = await mechanicService.getAllMechanics();
 
     const services = await prestationService.findServicesByPrestations(
       prestations
