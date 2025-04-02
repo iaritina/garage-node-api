@@ -1,13 +1,24 @@
 const Service = require("./serviceModel");
 require("dotenv").config();
 
+const convertDurationToMinutes = (durationStr) => {
+  const [hours, minutes] = durationStr.split(":").map(Number);
+  return hours * 60 + minutes;
+};
+
 const createService = async (service) => {
   try {
+    // Vérifier si `duration` est une chaîne et la convertir
+    if (typeof service.duration === "string") {
+      service.duration = convertDurationToMinutes(service.duration);
+    }
+
     return await Service.create(service);
   } catch (error) {
     throw new Error("Error: " + error.message);
   }
 };
+
 
 const getAll = async () => {
   try {
