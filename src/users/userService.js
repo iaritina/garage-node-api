@@ -87,6 +87,15 @@ const getUserByEmail = async (email) => {
   }
 };
 
+const getCustomerCount = async () => {
+    try {
+      const customerCount = (await User.find({role: "client"})).length;
+      return customerCount;
+    } catch (error) {
+      throw new Error("Error", error.message);
+    }
+}
+
 module.exports = {
   getAllUser,
   getUserById,
@@ -96,4 +105,5 @@ module.exports = {
   updateUser,
   login,
   getUserByEmail,
+  getCustomerCount
 };
