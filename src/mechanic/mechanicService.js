@@ -26,16 +26,14 @@ const getAmountOfCommission = async (mechanic, date) => {
       isCanceled: false,
     });
 
-    console.log("appointments", appointments);
 
     let totalCommission = 0;
 
     for (const appointment of appointments) {
       for (const prestation of appointment.prestations) {
         const service = await Service.findById(prestation.service);
-        console.log("service", service);
         if (service && service.commission) {
-          totalCommission += parseFloat(prestation.price) * service.commission;
+          totalCommission += parseFloat(prestation.price) * service.commission / 100;
         }
       }
     }
@@ -68,14 +66,12 @@ const countRepairedVehicle = async (mechanic, date) => {
 };
 
 const countSerivceByMechanic = async (mechanic) => {
-  console.log("mechanic", mechanic);
   try {
     const appointments = await Appointment.find({
       mechanic: mechanic,
       status: true,
       isCanceled: false,
     });
-    console.log("appointments", appointments);
 
     const serviceCount = {};
 
