@@ -71,4 +71,13 @@ router.get("/client/:email", async (req, res) => {
   }
 });
 
+router.get("/customer/count", async (req, res) => {
+  try {
+    const customerCount = await userService.getCustomerCount();
+    res.status(200).json(customerCount);
+  } catch (error) {
+    res.status(400).json({error: error.message});
+  }
+});
+
 module.exports = router;

@@ -1,5 +1,6 @@
 const Service = require("./serviceModel");
 require("dotenv").config();
+const Appointment = require("../appointment/appointmentModel");
 
 const convertDurationToMinutes = (durationStr) => {
   const [hours, minutes] = durationStr.split(":").map(Number);
@@ -75,6 +76,38 @@ const findServicesByPrestations = async (prestations) => {
   }
 };
 
+const countSerivce = async () => {
+  try {
+    const appointments = await Appointment.find({
+      status: true,
+      isCanceled: false,
+    }); 
+
+  
+    const serviceIds = [...new Set(appointments.flatMap(app => app.prestations.map(p => p.service)))];
+    const services = await Service.find({ _id: { $in: serviceIds } }).lean();
+
+    const serviceMap = new Map(services.map(service => [service._id.toString(), service.name]));
+
+    const serviceCount = {};
+    appointments.forEach(appointment => {
+      appointment.prestations.forEach(prestation => {
+        const serviceName = serviceMap.get(prestation.service.toString());
+        if (serviceName) {
+          serviceCount[serviceName] = (serviceCount[serviceName] || 0) + 1;
+        }
+      });
+    });
+
+    console.log("Service count:", serviceCount);
+    return serviceCount;
+  } catch (error) {
+    console.error("Error in countService:", error);
+    throw new Error(error.message);
+  }
+};
+
+
 module.exports = {
   createService,
   getAll,
@@ -83,4 +116,5 @@ module.exports = {
   update,
   deleteService,
   findServicesByPrestations,
+  countSerivce
 };
