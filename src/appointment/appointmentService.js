@@ -7,6 +7,35 @@ const Product = require("../product/productService");
 const Brand = require("../vehiculeBrands/brandModel");
 const mechanicService = require("../mechanic/mechanicService");
 
+
+async function findAll() {
+  try {
+    const appointments = await Appointment.find({})
+      .populate({
+        path: "vehicle",
+        populate: [
+          {
+            path: "user", 
+          },
+          {
+            path: "model",
+            populate: {
+              path: "brand",
+            },
+          },
+        ],
+      })
+      .populate("prestations.service")
+      .populate("mechanic");
+
+    return appointments;
+  } catch (error) {
+    console.error("Error", error);
+  }
+}
+
+
+
 async function createAppointment(appointmentData, interventionData) {
   try {
     const mechanic = await userService.getUserById(appointmentData.mechanic);
@@ -385,6 +414,7 @@ const getAppointmentStatsByBrand = async (year = null) => {
 };
 
 module.exports = {
+  findAll,
   getAvailableMechanics,
   createAppointment,
   getAllAppointment,
