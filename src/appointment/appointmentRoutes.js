@@ -1,6 +1,19 @@
 const router = require("express").Router();
 const appointmentService = require("./appointmentService");
 
+router.get("/", async (req, res) => {
+  try {
+    
+    const appointments = await appointmentService.findAll();
+    res.status(200).json(appointments);
+
+  } catch (error) {
+    return res
+    .status(400)
+    .json({ error: "Erreur lors des la recuperation des rendez-vous" });
+  }
+})
+
 router.post("/available-mechanics", async (req, res) => {
   try {
     const { date, prestations } = req.body;
