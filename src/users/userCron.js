@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const mechanicService = require("./userService");
+const mechanicService = require("../mechanic/mechanicService");
 
 async function resetWorkingHours() {
   try {
