@@ -272,6 +272,26 @@ async function getListAppointmentByMechanic(mechanic) {
   }
 }
 
+async function getListAppointmentClient(id) {
+  try {
+    const tasks = await Appointment.find({ client: id, status: true })
+      .populate({
+        path: "vehicle",
+        populate: {
+          path: "model",
+          populate: {
+            path: "brand",
+          },
+        },
+      })
+      .populate("prestations.service")
+      .populate("mechanic");
+    return tasks;
+  } catch (error) {
+    throw new Error("Error :", error);
+  }
+}
+
 const completeTask = async (id) => {
   try {
     return await Appointment.findByIdAndUpdate(
@@ -422,4 +442,5 @@ module.exports = {
   completeTask,
   getClientAppointments,
   getAppointmentStatsByBrand,
+  getListAppointmentClient
 };

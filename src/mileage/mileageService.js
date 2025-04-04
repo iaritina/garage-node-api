@@ -8,6 +8,15 @@ async function create(mileage) {
     }
 }
 
+async function getByAppointment(id) {
+    try {
+        return await Mileage.findOne({appointment: id});
+    } catch (error) {
+        throw new Error("Error: ", error.message);
+    }
+}
+
 module.exports = {
     create,
+    getByAppointment
 }

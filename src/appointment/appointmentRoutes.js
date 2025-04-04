@@ -116,4 +116,13 @@ router.get("/stats/appointments-by-brand", async (req, res) => {
   }
 });
 
+router.get("/appointment-client/:id", async(req, res) => {
+  try {
+    const appointment = await appointmentService.getListAppointmentClient(req.params.id);
+    res.status(200).json(appointment);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+})
+
 module.exports = router;
